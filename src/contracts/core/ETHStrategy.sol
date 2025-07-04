@@ -187,6 +187,17 @@ contract ETHStrategy is IStrategy,PensionfiERC20 {
         return (sourceInfo.withdrawRequestTime,sourceInfo.claimRequestTime,sourceInfo.deposits.length,sourceInfo.claims.length);
     }
 
+
+    function transferToMarket(uint256 amount, address market) external onlyStrategyManager {
+        require(amount > 0, "Transfer amount must be positive");
+        require(amount <= address(this).balance, "Insufficient balance");
+        require(market != address(0), "Invalid comptroller address");
+        // 转移ETH到market
+        (bool success, ) = address.call{value: amount}("");
+        require(success, "ETH transfer failed");
+    }
+
+
     receive() external payable{}
 
 
