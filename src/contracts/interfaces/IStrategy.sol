@@ -18,7 +18,4 @@ interface IStrategy {
     function modifyUser(address source,address target) external returns (bool);
 
     function readUserInfo(address from) external view returns(uint256,uint256,uint256,uint256);
-
-    function transferToMarket(uint256 amount, address market) external ;
-
 }
