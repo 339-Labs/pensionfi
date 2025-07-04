@@ -1,30 +1,17 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
-import "@openzeppelin/contracts/access/Ownable.sol";
+// SPDX-License-Identifier: BSD-3-Clause
+pragma solidity ^0.8.10;
 
-/**
- * @title PriceOracle
- * @notice Simple price oracle for collateral valuation
- */
-contract PriceOracle is Ownable {
-    mapping(address => uint256) public prices;
+import "./CToken.sol";
+
+abstract contract PriceOracle {
+    /// @notice Indicator that this is a PriceOracle contract (for inspection)
+    bool public constant isPriceOracle = true;
 
     /**
-     * @notice Set price for a token
-     * @param token Token address
-     * @param price Price in USD scaled by 1e18
-     */
-    function setPrice(address token, uint256 price) external onlyOwner {
-        prices[token] = price;
-    }
-
-    /**
-     * @notice Get price for a token
-     * @param token Token address
-     * @return Price in USD scaled by 1e18
-     */
-    function getPrice(address token) external view returns (uint256) {
-        return prices[token];
-    }
+      * @notice Get the underlying price of a cToken asset
+      * @param cToken The cToken to get the underlying price of
+      * @return The underlying asset price mantissa (scaled by 1e18).
+      *  Zero means the price is unavailable.
+      */
+    function getUnderlyingPrice(CToken cToken) virtual external view returns (uint);
 }
-

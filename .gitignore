@@ -6,6 +6,9 @@
 deps/
 states/
 
+lib
+node_modules
+
 # Debug info
 *.dbg.json
 *.tsbuildinfo

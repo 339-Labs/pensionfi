@@ -4,17 +4,17 @@ pragma solidity ^0.8.0;
 import {IStrategyManager} from "../interfaces/IStrategyManager.sol";
 import {IStrategy} from "../interfaces/IStrategy.sol";
 import {IGovernor} from "../interfaces/IGovernor.sol";
-import "../interfaces/ILendingManager.sol";
+import "../market/CToken.sol";
 
 contract StrategyManager is IStrategyManager{
 
-    mapping(address => address) public strategyToken;
-    ILendingManager public immutable lendingManager;
+    mapping(address => address) public tokenStrategy;
+    CToken public immutable ctoken;
 
     IGovernor public immutable governor;
 
-    constructor(address _lendingManager, address _governor) {
-        lendingManager = ILendingManager(_lendingManager);
+    constructor(address _ctoken, address _governor) {
+        ctoken = CToken(_ctoken);
         governor = _governor;
     }
 
@@ -25,12 +25,12 @@ contract StrategyManager is IStrategyManager{
 
     function deposit(address from, uint256 amount) external returns (uint256){
         // todo
-        require(msg.sender == lendingManager, "Only ETHStrategy can call");
+        require(msg.sender == ctoken, "Only ETHStrategy can call");
         require(address(this).balance >= amount, "Insufficient ETH balance");
 
         // Convert ETH to WETH and deposit to lending pool
         // Implementation depends on your WETH contract
-        lendingManager.mint(WETH_ADDRESS, amount);
+        ctoken.mint(WETH_ADDRESS, amount);
         return 0;
     }
 
@@ -39,7 +39,7 @@ contract StrategyManager is IStrategyManager{
         require(msg.sender == ethStrategy, "Only ETHStrategy can call");
 
         // Redeem from lending pool
-        lendingManager.redeem(WETH_ADDRESS, amount);
+        ctoken.redeem(WETH_ADDRESS, amount);
     }
 
     /**
@@ -67,9 +67,9 @@ contract StrategyManager is IStrategyManager{
     }
 
     function addStrategy(address strategy,address token) external onlyGovernor returns (bool){
-        require(token == address(0), "not use 0 address");
-        require(strategyToken[strategy] == address(0), "Address already exists in blacklist");
-        strategyToken[strategy] = token;
+        require(strategy == address(0), "not use 0 address");
+        require(tokenStrategy[token] == address(0), "Address already exists in blacklist");
+        tokenStrategy[strategy] = token;
         return true;
     }
 
